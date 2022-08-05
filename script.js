@@ -15,7 +15,10 @@ let is_valid_name = {};
 const api_url = 'https://api.paxful.com/';
 
 // Fetch all the user data mentioned in the valid usernames list
-if (JSON.parse(localStorage.getItem('usernames')).length != 0)
+if (
+  JSON.parse(localStorage.getItem('usernames')) &&
+  JSON.parse(localStorage.getItem('usernames')).length != 0
+)
   valid_user_names = JSON.parse(localStorage.getItem('usernames'));
 
 let createDataElement = (value) => {
