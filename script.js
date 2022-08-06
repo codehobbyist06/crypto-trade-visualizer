@@ -13,6 +13,7 @@ let other_user_data = [];
 let is_valid_name = {};
 
 const api_url = 'https://api.paxful.com/';
+const cors_proxy_url = 'https://trade-visualizer-backend.herokuapp.com/';
 
 // Fetch all the user data mentioned in the valid usernames list
 if (
@@ -136,36 +137,61 @@ let get_user_data = async (user_name) => {
     });
 };
 
-let add_new_offers = (user_name) => {
-  get_user_data(user_name).then(() => {
-    for (let offer of all_offers) {
-      if (offer['offer_owner_username'] !== user_name) continue;
+let add_new_offers = (username) => {
+  for (let offer of all_offers) {
+    if (offer['username'] === username) {
+      // console.log(offer['username']);
+      if (is_valid_name[offer['username']] != 1) continue;
       let new_offer_data = {
-        userName: offer['offer_owner_username'],
-        lastSeen: other_user_data[offer['offer_owner_username']]['last_seen'],
-        paymentMethodName: offer['payment_method_name'],
-        amount: 100,
-        NumberOfTrades:
-          other_user_data[offer['offer_owner_username']]['total_trades'],
+        userName: offer['username'],
+        lastSeen: offer['lastSeenString'],
+        paymentMethodName: offer['paymentMethodName'],
+        amount: offer['fiatAmountRangeMax'],
+        NumberOfTrades: 1,
       };
 
       // console.log(new_offer_data);
-
       interested_offers.push(new_offer_data);
+
       display_offer(new_offer_data);
     }
-  });
-};
-
-let get_all_user_data = async () => {
-  for (let user of valid_user_names) {
-    await get_user_data(user);
   }
 };
 
-get_all_user_data().then(() => {
-  get_interested_offers();
-});
+// let get_all_user_data = async () => {
+//   for (let user of valid_user_names) {
+//     await get_user_data(user);
+//   }
+// };
+
+// get_all_user_data().then(() => {
+//   get_interested_offers();
+// });
+
+let get_offers_data_no_auth = () => {
+  fetch(cors_proxy_url)
+    .then((response) => response.json())
+    .then((data) => {
+      let offers = data['data'];
+      all_offers = offers;
+      for (let offer of offers) {
+        console.log(offer['username']);
+        if (is_valid_name[offer['username']] != 1) continue;
+        let new_offer_data = {
+          userName: offer['username'],
+          lastSeen: offer['lastSeenString'],
+          paymentMethodName: offer['paymentMethodName'],
+          amount: offer['fiatAmountRangeMax'],
+          NumberOfTrades: 1,
+        };
+
+        // console.log(new_offer_data);
+        interested_offers.push(new_offer_data);
+
+        display_offer(new_offer_data);
+      }
+    });
+};
 
 let add_user = (e) => {
   if (username_input.value == '' || is_valid_name[username_input.value] === 0) {
@@ -232,6 +258,8 @@ let remove_user = () => {
 
   // console.log(interested_offers, valid_user_names);
 };
+
+get_offers_data_no_auth();
 
 //Attach event handlers
 add_user_button.addEventListener('click', add_user);
