@@ -14,13 +14,15 @@ let is_valid_name = {};
 
 const api_url = 'https://api.paxful.com/';
 const cors_proxy_url = 'https://trade-visualizer-backend.herokuapp.com/';
+const cors_dev_url = 'http://127.0.0.1:5000';
 
 // Fetch all the user data mentioned in the valid usernames list
 if (
   JSON.parse(localStorage.getItem('usernames')) &&
   JSON.parse(localStorage.getItem('usernames')).length != 0
-)
+) {
   valid_user_names = JSON.parse(localStorage.getItem('usernames'));
+}
 
 let createDataElement = (value) => {
   let new_cell = document.createElement('TD');
@@ -34,7 +36,7 @@ let display_offer = (offer) => {
   new_row.appendChild(createDataElement(offer['lastSeen']));
   new_row.appendChild(createDataElement(offer['paymentMethodName']));
   new_row.appendChild(createDataElement(offer['amount']));
-  new_row.appendChild(createDataElement(offer['NumberOfTrades']));
+  // new_row.appendChild(createDataElement(offer['NumberOfTrades']));
   data_table.appendChild(new_row);
 };
 
@@ -49,69 +51,70 @@ for (let name of valid_user_names) {
   display_user(name);
 }
 
-let request_offer_data = async (offset) => {
-  const api_endpoint = 'paxful/v1/offer/all';
+//For auth requests
+// let request_offer_data = async (offset) => {
+//   const api_endpoint = 'paxful/v1/offer/all';
 
-  if (offset === undefined) offset = 0;
+//   if (offset === undefined) offset = 0;
 
-  return await fetch(api_url + api_endpoint, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json; version=1',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Bearer ${token}`,
-    },
-    body: `offer_type=sell&limit=300&offset=${offset}`,
-  }).then((response) => {
-    let value = response.json();
-    return value;
-  });
-};
+//   return await fetch(api_url + api_endpoint, {
+//     method: 'POST',
+//     headers: {
+//       Accept: 'application/json; version=1',
+//       'Content-Type': 'application/x-www-form-urlencoded',
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: `offer_type=sell&limit=300&offset=${offset}`,
+//   }).then((response) => {
+//     let value = response.json();
+//     return value;
+//   });
+// };
 
-let get_page_count = async () => {
-  return await request_offer_data().then((data) => {
-    let count = data['data']['totalCount'] / 300;
-    all_offers = [...all_offers, ...data['data']['offers']];
-    return {
-      count: count,
-      data: data,
-    };
-  });
-};
+// let get_page_count = async () => {
+//   return await request_offer_data().then((data) => {
+//     let count = data['data']['totalCount'] / 300;
+//     all_offers = [...all_offers, ...data['data']['offers']];
+//     return {
+//       count: count,
+//       data: data,
+//     };
+//   });
+// };
 
-let get_interested_offers = () => {
-  get_page_count().then((data) => {
-    let requests = [];
-    for (let i = 1; i < data['count']; i++) {
-      requests.push(
-        request_offer_data(300 * i).then((data) => {
-          all_offers = [...all_offers, ...data['data']['offers']];
-          // console.log(all_offers);
-        })
-      );
-    }
+// let get_interested_offers = () => {
+//   get_page_count().then((data) => {
+//     let requests = [];
+//     for (let i = 1; i < data['count']; i++) {
+//       requests.push(
+//         request_offer_data(300 * i).then((data) => {
+//           all_offers = [...all_offers, ...data['data']['offers']];
+//           // console.log(all_offers);
+//         })
+//       );
+//     }
 
-    Promise.all(requests).then(() => {
-      for (let offer of all_offers) {
-        // console.log(offer['offer_owner_username']);
-        if (is_valid_name[offer['offer_owner_username']] != 1) continue;
-        let new_offer_data = {
-          userName: offer['offer_owner_username'],
-          lastSeen: other_user_data[offer['offer_owner_username']]['last_seen'],
-          paymentMethodName: offer['payment_method_name'],
-          amount: 100,
-          NumberOfTrades:
-            other_user_data[offer['offer_owner_username']]['total_trades'],
-        };
+//     Promise.all(requests).then(() => {
+//       for (let offer of all_offers) {
+//         // console.log(offer['offer_owner_username']);
+//         if (is_valid_name[offer['offer_owner_username']] != 1) continue;
+//         let new_offer_data = {
+//           userName: offer['offer_owner_username'],
+//           lastSeen: other_user_data[offer['offer_owner_username']]['last_seen'],
+//           paymentMethodName: offer['payment_method_name'],
+//           amount: 100,
+//           NumberOfTrades:
+//             other_user_data[offer['offer_owner_username']]['total_trades'],
+//         };
 
-        // console.log(new_offer_data);
-        interested_offers.push(new_offer_data);
+//         // console.log(new_offer_data);
+//         interested_offers.push(new_offer_data);
 
-        display_offer(new_offer_data);
-      }
-    });
-  });
-};
+//         display_offer(new_offer_data);
+//       }
+//     });
+//   });
+// };
 
 let get_user_data = async (user_name) => {
   const api_endpoint = 'paxful/v1/user/info';
@@ -158,15 +161,12 @@ let add_new_offers = (username) => {
   }
 };
 
-// let get_all_user_data = async () => {
-//   for (let user of valid_user_names) {
-//     await get_user_data(user);
-//   }
-// };
-
-// get_all_user_data().then(() => {
-//   get_interested_offers();
-// });
+let format_amount = (amount, currency_code) => {
+  return new Intl.NumberFormat({
+    style: 'currency',
+    currency: currency_code,
+  }).format(amount);
+};
 
 let get_offers_data_no_auth = () => {
   fetch(cors_proxy_url)
@@ -175,13 +175,17 @@ let get_offers_data_no_auth = () => {
       let offers = data['data'];
       all_offers = offers;
       for (let offer of offers) {
-        console.log(offer['username']);
+        let formattedAmount = format_amount(
+          offer['fiatAmountRangeMax'],
+          offer['fiatCurrencyCode']
+        );
+        // console.log(offer['username']);
         if (is_valid_name[offer['username']] != 1) continue;
         let new_offer_data = {
           userName: offer['username'],
           lastSeen: offer['lastSeenString'],
           paymentMethodName: offer['paymentMethodName'],
-          amount: offer['fiatAmountRangeMax'],
+          amount: offer['fiatCurrencyCode'] + ' ' + formattedAmount,
           NumberOfTrades: 1,
         };
 
