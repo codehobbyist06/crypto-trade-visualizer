@@ -12,7 +12,7 @@ let interested_offers = [];
 let other_user_data = [];
 let is_valid_name = {};
 
-const api_url = 'https://api.paxful.com/';
+const api_url = 'https://cors-anywhere.herokuapp.com/https://api.paxful.com/';
 
 // Fetch all the user data mentioned in the valid usernames list
 if (
@@ -120,6 +120,7 @@ let get_user_data = async (user_name) => {
     headers: {
       Accept: 'application/json; version=1',
       'Content-Type': 'application/x-www-form-urlencoded',
+      'Access-Control-Allow-Origin': '*,*',
       Authorization: `Bearer ${token}`,
     },
     body: `username=${user_name}`,
