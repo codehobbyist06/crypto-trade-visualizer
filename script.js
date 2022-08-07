@@ -5,6 +5,7 @@ const user_table = document.querySelector('#user-table');
 const add_user_button = document.querySelector('#add-user-button');
 const remove_user_button = document.querySelector('#remove-user-button');
 const username_input = document.querySelector('#username-input');
+const app = document.querySelector('#app');
 
 let valid_user_names = ['ROYALxGIFTS'];
 let all_offers = [];
@@ -13,7 +14,7 @@ let other_user_data = [];
 let is_valid_name = {};
 
 const api_url = 'https://api.paxful.com/';
-const cors_proxy_url = 'https://trade-visualizer-backend.herokuapp.com/';
+const cors_proxy_url = 'https://trade-visualizer-backend.herokuapp.com';
 const cors_dev_url = 'http://127.0.0.1:5000';
 
 // Fetch all the user data mentioned in the valid usernames list
@@ -32,11 +33,11 @@ let createDataElement = (value) => {
 
 let display_offer = (offer) => {
   let new_row = document.createElement('TR');
-  new_row.appendChild(createDataElement(offer['userName']));
-  new_row.appendChild(createDataElement(offer['lastSeen']));
-  new_row.appendChild(createDataElement(offer['paymentMethodName']));
+  new_row.appendChild(createDataElement(offer['username']));
+  new_row.appendChild(createDataElement(offer['last_seen']));
+  new_row.appendChild(createDataElement(offer['ad_name']));
   new_row.appendChild(createDataElement(offer['amount']));
-  // new_row.appendChild(createDataElement(offer['NumberOfTrades']));
+  new_row.appendChild(createDataElement(offer['total_trades']));
   data_table.appendChild(new_row);
 };
 
@@ -168,31 +169,23 @@ let format_amount = (amount, currency_code) => {
   }).format(amount);
 };
 
-let get_offers_data_no_auth = () => {
-  fetch(cors_proxy_url)
+let get_offers_data_no_auth = (username) => {
+  fetch(cors_dev_url + '?username=' + username)
     .then((response) => response.json())
     .then((data) => {
-      let offers = data['data'];
-      all_offers = offers;
-      for (let offer of offers) {
-        let formattedAmount = format_amount(
-          offer['fiatAmountRangeMax'],
-          offer['fiatCurrencyCode']
-        );
-        // console.log(offer['username']);
-        if (is_valid_name[offer['username']] != 1) continue;
-        let new_offer_data = {
-          userName: offer['username'],
-          lastSeen: offer['lastSeenString'],
-          paymentMethodName: offer['paymentMethodName'],
-          amount: offer['fiatCurrencyCode'] + ' ' + formattedAmount,
-          NumberOfTrades: 1,
-        };
-
-        // console.log(new_offer_data);
-        interested_offers.push(new_offer_data);
-
-        display_offer(new_offer_data);
+      if (data['status'] == 'error') {
+        app.innerHTML = '<h2>Unable to fetch offers</h2>';
+        return;
+      }
+      all_offers = data;
+      // console.log(all_offers);
+      for (let offer of all_offers) {
+        offer['amount'] =
+          offer['currency_code'] +
+          ' ' +
+          format_amount(offer['amount'], offer['currency_code']);
+        interested_offers.push(offer);
+        display_offer(offer);
       }
     });
 };
@@ -210,7 +203,7 @@ let add_user = (e) => {
   is_valid_name[username_input.value] = 1;
   valid_user_names.push(username_input.value);
   display_user(username_input.value);
-  add_new_offers(username_input.value);
+  get_offers_data_no_auth(username_input.value);
 
   localStorage.setItem('usernames', JSON.stringify(valid_user_names));
 
@@ -236,7 +229,7 @@ let remove_user = () => {
   is_valid_name[username_input.value] = 0;
 
   for (let offer in interested_offers) {
-    if (interested_offers[offer]['userName'] === user_name) {
+    if (interested_offers[offer]['username'] === user_name) {
       // console.log(offer);
       indexes_to_be_removed.push(parseInt(offer));
     }
@@ -263,7 +256,9 @@ let remove_user = () => {
   // console.log(interested_offers, valid_user_names);
 };
 
-get_offers_data_no_auth();
+for (let name of valid_user_names) {
+  get_offers_data_no_auth(name);
+}
 
 //Attach event handlers
 add_user_button.addEventListener('click', add_user);
