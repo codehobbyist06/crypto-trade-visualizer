@@ -170,7 +170,7 @@ let format_amount = (amount, currency_code) => {
 };
 
 let get_offers_data_no_auth = (username) => {
-  fetch(cors_dev_url + '?username=' + username)
+  fetch(cors_proxy_url + '?username=' + username)
     .then((response) => response.json())
     .then((data) => {
       if (data['status'] == 'error') {
