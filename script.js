@@ -15,7 +15,7 @@ let is_valid_name = {};
 
 const api_url = 'https://api.paxful.com/';
 // const cors_proxy_url = 'https://trade-visualizer-backend.herokuapp.com';
-const cors_proxy_url = 'http://3.111.169.99:5000/';
+const cors_proxy_url = 'https://pax.nymoe.com/data';
 const cors_dev_url = 'http://127.0.0.1:5000';
 
 // Fetch all the user data mentioned in the valid usernames list
