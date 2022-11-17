@@ -64,14 +64,12 @@
     border-collapse: collapse;
 }
 
-#add-user-button{
+.button{
     margin-bottom: 10px;
     width: 150px;
     height: 30px;
 }
 
-#remove-user-button {
-    margin-bottom: 10px;
-    width: 150px;
-    height: 30px;
+#comp, #client{
+    background: #F7B05B;
 }

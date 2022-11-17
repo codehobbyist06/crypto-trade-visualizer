@@ -1,0 +1,37 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <title>Trading data visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="left-pane">
+            <input id="username-input" placeholder="Type username here..." id="text"></input>
+            <button class="button" id="add-user-button">Add User</button>
+            <button class="button" id="remove-user-button">Remove User</button>
+            <button class="button" id="client">Switch to Competitor</button>
+            <table id="user-table">
+                <tr>
+                    <td><strong>Valid Usernames</strong></td>
+                </tr>
+            </table>
+        </div>
+        <div id="right-pane">
+            <table id="data-table">
+                <tr>
+                    <td><strong>Username</strong></td>
+                    <td><strong>Last seen</strong></td>
+                    <td><strong>Ad Name<strong></td>
+                    <td><strong>Amount<strong></td>
+                    <td><strong>No. of Trades<strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script src="./script.js" type="module"></script>
+</body>
+</html>

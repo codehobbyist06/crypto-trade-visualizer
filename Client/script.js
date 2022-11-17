@@ -1,4 +1,4 @@
-import { token } from './data.js';
+import { token } from '../data.js';
 
 const data_table = document.querySelector('#data-table');
 const user_table = document.querySelector('#user-table');
@@ -6,6 +6,7 @@ const add_user_button = document.querySelector('#add-user-button');
 const remove_user_button = document.querySelector('#remove-user-button');
 const username_input = document.querySelector('#username-input');
 const app = document.querySelector('#app');
+const swicth_to_comp_button = document.querySelector('#client');
 
 let valid_user_names = ['ROYALxGIFTS'];
 let all_offers = [];
@@ -261,9 +262,14 @@ for (let name of valid_user_names) {
   get_offers_data_no_auth(name);
 }
 
+let switch_to_comp = () => {
+  window.location.href = '../Competitor/comp.html';
+};
+
 //Attach event handlers
 add_user_button.addEventListener('click', add_user);
 remove_user_button.addEventListener('click', remove_user);
+swicth_to_comp_button.addEventListener('click', switch_to_comp);
 
 //Save the usernames to localStorage
 localStorage.setItem('usernames', JSON.stringify(valid_user_names));
