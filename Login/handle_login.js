@@ -7,7 +7,7 @@ let handle_login = (event) => {
 
   if (input_password.value === PASSWORD) {
     // alert('Login Successful');
-    window.location.href = '../Client/index.html';
+    window.location.href = './Client/index.html';
   } else {
     alert('Incorrect Password!');
   }
