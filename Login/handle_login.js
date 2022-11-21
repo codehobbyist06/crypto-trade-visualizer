@@ -7,6 +7,7 @@ let handle_login = (event) => {
 
   if (input_password.value === PASSWORD) {
     // alert('Login Successful');
+    localStorage.setItem('is_logged_in', 'True');
     window.location.href = './Client/index.html';
   } else {
     alert('Incorrect Password!');
