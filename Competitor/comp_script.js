@@ -54,6 +54,8 @@ if (is_logged_in !== 'True') {
     user_table.appendChild(new_row);
   };
 
+  valid_comp_names.sort();
+
   for (let name of valid_comp_names) {
     is_valid_name[name] = 1;
     display_user(name);
